@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { dark, light } from "@clerk/themes";
 
 const Header = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -119,11 +121,22 @@ const Header = () => {
             <Dropdown.Item onClick={handleSignout}>Sign out</Dropdown.Item>
           </Dropdown>
         ) : (
-          <Link href="/sign-in">
-            <Button gradientDuoTone="purpleToBlue" outline>
+          <>
+            <SignedIn>
+              <UserButton
+                appearance={{
+                  baseTheme: theme === "light" ? light : dark,
+                }}
+              />
+            </SignedIn>
+            <SignedOut>
+            <Link href='/sign-in'>
+            <Button gradientDuoTone='purpleToBlue' outline>
               Sign In
             </Button>
           </Link>
+            </SignedOut>
+          </>
         )}
 
         <Navbar.Toggle />
