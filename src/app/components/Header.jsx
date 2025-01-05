@@ -5,15 +5,17 @@ import { FaMoon, FaSearch, FaSun } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTheme } from "next-themes";
 
 const Header = () => {
   const [searchTerm, setSearchTerm] = useState("");
+
+  const { theme, setTheme } = useTheme();
 
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const theme = "light";
   const currentUser = null;
 
   useEffect(() => {
@@ -38,7 +40,9 @@ const Header = () => {
     router.push(`/search?${params.toString()}`);
   };
 
-  const toggleTheme = () => {};
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
 
   return (
     <Navbar className="border-b-2">
