@@ -1,3 +1,4 @@
+import RecentPosts from "@/app/components/RecentPosts";
 import { Button } from "flowbite-react";
 import Link from "next/link";
 
@@ -76,6 +77,8 @@ export default async function PostPage({ params }) {
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
       )}
+
+      <RecentPosts limit={3} />
     </main>
   );
 }
