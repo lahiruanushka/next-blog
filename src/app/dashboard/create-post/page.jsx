@@ -17,13 +17,19 @@ import { app } from "../../lib/config/firebase";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function CreatePostPage() {
   const { isSignedIn, user, isLoaded } = useUser();
+  const router = useRouter();
+
   const [file, setFile] = useState(null);
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
   const [formData, setFormData] = useState({});
+  const [publishError, setPublishError] = useState(null);
+  
+  console.log(formData);
 
   const handleUpdloadImage = async () => {
     try {
@@ -62,6 +68,33 @@ export default function CreatePostPage() {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          userMongoId: user.publicMetadata.userMongoId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPublishError(data.message);
+        return;
+      }
+      if (res.ok) {
+        setPublishError(null);
+        router.push(`/post/${data.slug}`);
+      }
+    } catch (error) {
+      setPublishError('Something went wrong');
+    }
+  };
+
   if (!isLoaded) {
     return null;
   }
@@ -72,7 +105,7 @@ export default function CreatePostPage() {
         <h1 className="text-center text-3xl my-7 font-semibold">
           Create a post
         </h1>
-        <form className="flex flex-col gap-4">
+        <form className="flex flex-col gap-4"  onSubmit={handleSubmit}>
           <div className="flex flex-col gap-4 sm:flex-row justify-between">
             <TextInput
               type="text"
@@ -80,8 +113,15 @@ export default function CreatePostPage() {
               required
               id="title"
               className="flex-1"
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
             />
-            <Select>
+             <Select
+              onChange={(e) =>
+                setFormData({ ...formData, category: e.target.value })
+              }
+            >
               <option value="uncategorized">Select a category</option>
               <option value="javascript">JavaScript</option>
               <option value="reactjs">React.js</option>
@@ -131,6 +171,9 @@ export default function CreatePostPage() {
             placeholder="Write something..."
             className="h-72 mb-12"
             required
+            onChange={(value) => {
+              setFormData({ ...formData, content: value });
+            }}
           />
           <Button type="submit" gradientDuoTone="purpleToPink">
             Publish
