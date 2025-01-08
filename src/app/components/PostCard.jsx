@@ -6,7 +6,7 @@ export default function PostCard({ post }) {
 
   return (
     <div className="group relative max-w-[430px] border border-teal-500 hover:border-2 hover:shadow-lg h-[400px] overflow-hidden rounded-lg transition-all">
-      <Link to={`/post/${post.slug}`}>
+      <Link href={`/post/${post.slug}`}>
         <div className="relative">
           <img
             src={post.image}
@@ -45,7 +45,7 @@ export default function PostCard({ post }) {
         </div>
 
         <Link
-          to={`/post/${post.slug}`}
+          href={`/post/${post.slug}`}
           className="z-10 group-hover:bottom-0 absolute bottom-4 left-0 right-0 border border-teal-500 text-teal-500 hover:bg-teal-500 hover:text-white transition-all duration-300 text-center py-2 rounded-md !rounded-tl-none m-2"
         >
           Read article
