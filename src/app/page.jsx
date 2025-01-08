@@ -15,16 +15,29 @@ import PostCard from "./components/PostCard";
 export default function Home() {
   const [posts, setPosts] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
 
   React.useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts`);
-        if (!res.ok) throw new Error("Failed to fetch posts");
+        const queryParams = new URLSearchParams({
+          limit: 6,
+          order: "desc",
+        }).toString();
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/posts?${queryParams}`
+        );
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
         const data = await res.json();
-        setPosts(data.posts.slice(0, 6));
+        setPosts(data.posts);
       } catch (error) {
         console.error("Failed to fetch posts:", error);
+        setError(error.message);
       } finally {
         setIsLoading(false);
       }
@@ -102,12 +115,12 @@ export default function Home() {
             Dive deep into the world of technology with expert insights,
             comprehensive tutorials, and cutting-edge programming knowledge.
           </motion.p>
-          <motion.div 
+          <motion.div
             className="flex justify-center gap-4 flex-wrap"
             variants={itemVariants}
           >
             <Link href="/search" passHref>
-              <Button 
+              <Button
                 color="light"
                 size="xl"
                 className="group inline-flex items-center"
@@ -117,11 +130,7 @@ export default function Home() {
               </Button>
             </Link>
             <Link href="/about" passHref>
-              <Button 
-                color="dark" 
-                size="xl" 
-                outline
-              >
+              <Button color="dark" size="xl" outline>
                 Learn More
               </Button>
             </Link>
@@ -142,10 +151,7 @@ export default function Home() {
           variants={containerVariants}
         >
           {technologies.map((tech, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
-            >
+            <motion.div key={index} variants={itemVariants}>
               <Card className="dark:bg-gray-800">
                 <div className="flex flex-col items-center p-6">
                   <tech.icon className="h-12 w-12 text-teal-500 dark:text-teal-400 mb-4" />
@@ -181,20 +187,14 @@ export default function Home() {
                 variants={containerVariants}
               >
                 {posts.map((post) => (
-                  <motion.div 
-                    key={post._id} 
-                    variants={itemVariants}
-                  >
+                  <motion.div key={post._id} variants={itemVariants}>
                     <PostCard post={post} />
                   </motion.div>
                 ))}
               </motion.div>
               <div className="text-center mt-10">
                 <Link href="/search" passHref>
-                  <Button 
-                    color="teal" 
-                    size="xl"
-                  >
+                  <Button color="teal" size="xl">
                     View All Posts
                   </Button>
                 </Link>
