@@ -6,7 +6,7 @@ export default async function PostPage({ params }) {
   const fetchPost = async () => {
     try {
       const response = await fetch(
-        `${process.env.FRONTEND_URL}/api/posts/${params.slug}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${params.slug}`,
         {
           method: "GET",
           cache: "no-store",
