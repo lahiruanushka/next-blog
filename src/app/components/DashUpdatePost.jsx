@@ -2,34 +2,51 @@
 
 import { useUser } from "@clerk/nextjs";
 import { Alert, Button, FileInput, Select, TextInput } from "flowbite-react";
-
 import dynamic from "next/dynamic";
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
-
 import "react-quill-new/dist/quill.snow.css";
+
 import {
   getDownloadURL,
   getStorage,
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-import { app } from "../../lib/config/firebase";
+import { app } from "../lib/config/firebase";
+import { useEffect, useState } from "react";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
-export default function CreatePostPage() {
+export default function DashUpdatePost({ postId }) {
   const { isSignedIn, user, isLoaded } = useUser();
-  const router = useRouter();
-
   const [file, setFile] = useState(null);
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
   const [formData, setFormData] = useState({});
   const [publishError, setPublishError] = useState(null);
-  
-  console.log(formData);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${postId}`
+        );
+        const data = await res.json();
+        console.log(data);
+        if (res.ok) {
+          setFormData(data);
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+
+    if (postId && isSignedIn && user?.publicMetadata?.isAdmin) {
+      fetchPost();
+    }
+  }, [postId, user?.publicMetadata?.isAdmin, isSignedIn]);
 
   const handleUpdloadImage = async () => {
     try {
@@ -71,16 +88,19 @@ export default function CreatePostPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          userMongoId: user.publicMetadata.userMongoId,
-        }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${postId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+            body: JSON.stringify({...formData})
+        }
+      );
+
+      console.log(res)
+
       const data = await res.json();
       if (!res.ok) {
         setPublishError(data.message);
@@ -88,39 +108,44 @@ export default function CreatePostPage() {
       }
       if (res.ok) {
         setPublishError(null);
-        router.push(`/post/${data.slug}`);
+        router.push(`/post/${data._id}`);
       }
     } catch (error) {
-      setPublishError('Something went wrong');
+      setPublishError("Something went wrong");
     }
   };
 
+  // get the initial post data using useEffect and fetch
+
   if (!isLoaded) {
+    // Handle loading state however you like
     return null;
   }
 
   if (isSignedIn && user.publicMetadata.isAdmin) {
     return (
-      <div className="p-3 max-w-3xl mx-auto min-h-screen">
+      <div className="p-3 w-full mx-auto min-h-screen">
         <h1 className="text-center text-3xl my-7 font-semibold">
-          Create a post
+          Update a post
         </h1>
-        <form className="flex flex-col gap-4"  onSubmit={handleSubmit}>
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-4 sm:flex-row justify-between">
             <TextInput
               type="text"
               placeholder="Title"
               required
               id="title"
+              defaultValue={formData.title}
               className="flex-1"
               onChange={(e) =>
                 setFormData({ ...formData, title: e.target.value })
               }
             />
-             <Select
+            <Select
               onChange={(e) =>
                 setFormData({ ...formData, category: e.target.value })
               }
+              value={formData.category}
             >
               <option value="uncategorized">Select a category</option>
               <option value="javascript">JavaScript</option>
@@ -140,7 +165,7 @@ export default function CreatePostPage() {
               size="sm"
               outline
               onClick={handleUpdloadImage}
-              disabled={imageUploadProgress} // Disable button if uploading
+              disabled={imageUploadProgress}
             >
               {imageUploadProgress ? (
                 <div className="w-16 h-16">
@@ -154,7 +179,6 @@ export default function CreatePostPage() {
               )}
             </Button>
           </div>
-
           {imageUploadError && (
             <Alert color="failure">{imageUploadError}</Alert>
           )}
@@ -165,27 +189,32 @@ export default function CreatePostPage() {
               className="w-full h-72 object-cover"
             />
           )}
-
           <ReactQuill
             theme="snow"
             placeholder="Write something..."
             className="h-72 mb-12"
             required
+            value={formData.content}
             onChange={(value) => {
               setFormData({ ...formData, content: value });
             }}
           />
           <Button type="submit" gradientDuoTone="purpleToPink">
-            Publish
+            Update
           </Button>
+          {publishError && (
+            <Alert className="mt-5" color="failure">
+              {publishError}
+            </Alert>
+          )}
         </form>
       </div>
     );
-  } else {
-    return (
-      <h1 className="text-center text-3xl my-7 font-semibold">
-        You are not authorized to view this page
-      </h1>
-    );
   }
+
+  return (
+    <h1 className="text-center text-3xl my-7 font-semibold min-h-screen">
+      You need to be an admin to update a post
+    </h1>
+  );
 }

@@ -71,7 +71,7 @@ export const GET = async (req) => {
       .skip(startIndex)
       .limit(limit);
       
-    const totalPosts = await Post.countDocuments();
+    const totalPosts = await Post.countDocuments(query);
     
     const now = new Date();
     const oneMonthAgo = new Date(
@@ -91,3 +91,4 @@ export const GET = async (req) => {
     return new Response('Error getting posts', { status: 500 });
   }
 };
+

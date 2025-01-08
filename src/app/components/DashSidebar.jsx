@@ -18,6 +18,7 @@ export default function DashSidebar() {
   const [tab, setTab] = useState("");
   const searchParams = useSearchParams();
   const { user, isSignedIn } = useUser();
+  
   useEffect(() => {
     const urlParams = new URLSearchParams(searchParams);
     const tabFromUrl = urlParams.get("tab");

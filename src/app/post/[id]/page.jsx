@@ -6,19 +6,18 @@ export default async function PostPage({ params }) {
   const fetchPost = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${params.slug}`,
-        {
-          method: "GET",
-          cache: "no-store",
-        }
+        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${params.id}`
       );
+
+
+      console.log(response)
 
       if (!response.ok) {
         throw new Error("Failed to fetch post");
       }
 
       const data = await response.json();
-      return data.posts[0];
+      return data;
     } catch (error) {
       console.error("Error fetching post:", error);
       return null;

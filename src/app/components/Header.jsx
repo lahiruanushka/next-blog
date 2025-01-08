@@ -1,13 +1,15 @@
 "use client";
 
-import { Avatar, Button, Dropdown, Navbar, TextInput } from "flowbite-react";
+import { Button, Navbar, TextInput } from "flowbite-react";
 import { FaMoon, FaSearch, FaSun } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { dark, light } from "@clerk/themes";
+import { MdDashboard } from "react-icons/md";
+import { HiOutlineDocumentText, HiOutlinePlusCircle } from "react-icons/hi";
 
 const Header = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,8 +19,6 @@ const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  const currentUser = null;
 
   useEffect(() => {
     const searchFromUrl = searchParams.get("searchTerm");
@@ -79,57 +79,39 @@ const Header = () => {
           {theme === "light" ? <FaMoon /> : <FaSun />}
         </Button>
 
-        {currentUser ? (
-          <Dropdown
-            arrowIcon={false}
-            inline
-            label={
-              <Avatar
-                alt="user"
-                img={currentUser.profilePicture || "/images/default-avatar.png"}
-                rounded
-                className="w-full"
-              />
-            }
+        <SignedIn>
+          <UserButton
+            appearance={{
+              baseTheme: theme === "light" ? light : dark,
+            }}
           >
-            <Dropdown.Header>
-              <span className="block text-sm">@{currentUser.username}</span>
-              <span className="block text-sm font-medium truncate">
-                {currentUser.email}
-              </span>
-            </Dropdown.Header>
-            <Link href="/dashboard?tab=profile">
-              <Dropdown.Item>Profile</Dropdown.Item>
-            </Link>
-            <Dropdown.Divider />
-            {currentUser.isAdmin && (
-              <>
-                <Link href="/dashboard?tab=dash">
-                  <Dropdown.Item>Dashboard</Dropdown.Item>
-                </Link>
-                <Dropdown.Divider />
-              </>
-            )}
-          </Dropdown>
-        ) : (
-          <>
-            <SignedIn>
-              <UserButton
-                appearance={{
-                  baseTheme: theme === "light" ? light : dark,
-                }}
-                userProfileUrl="/dashboard?tab=profile"
+            <UserButton.MenuItems>
+              <UserButton.Link
+                label="Dashboard"
+                labelIcon={<MdDashboard size={16} />}
+                href="/dashboard?tab=dash"
               />
-            </SignedIn>
-            <SignedOut>
-              <Link href="/sign-in">
-                <Button gradientDuoTone="purpleToBlue" outline>
-                  Sign In
-                </Button>
-              </Link>
-            </SignedOut>
-          </>
-        )}
+              <UserButton.Link
+                label="My Posts"
+                labelIcon={<HiOutlineDocumentText size={16} />}
+                href="/dashboard?tab=posts"
+              />
+              <UserButton.Link
+                label="Create Post"
+                labelIcon={<HiOutlinePlusCircle size={16} />}
+                href="/dashboard?tab=create-post"
+              />
+            </UserButton.MenuItems>
+          </UserButton>
+        </SignedIn>
+
+        <SignedOut>
+          <Link href="/sign-in">
+            <Button gradientDuoTone="purpleToBlue" outline>
+              Sign In
+            </Button>
+          </Link>
+        </SignedOut>
 
         <Navbar.Toggle />
       </div>
