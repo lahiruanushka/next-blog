@@ -27,7 +27,6 @@ const Header = () => {
     }
   }, [searchParams]);
 
-
   const handleSubmit = (e) => {
     e.preventDefault();
     const params = new URLSearchParams(searchParams);
@@ -111,7 +110,6 @@ const Header = () => {
                 <Dropdown.Divider />
               </>
             )}
-
           </Dropdown>
         ) : (
           <>
@@ -120,14 +118,15 @@ const Header = () => {
                 appearance={{
                   baseTheme: theme === "light" ? light : dark,
                 }}
+                userProfileUrl="/dashboard?tab=profile"
               />
             </SignedIn>
             <SignedOut>
-            <Link href='/sign-in'>
-            <Button gradientDuoTone='purpleToBlue' outline>
-              Sign In
-            </Button>
-          </Link>
+              <Link href="/sign-in">
+                <Button gradientDuoTone="purpleToBlue" outline>
+                  Sign In
+                </Button>
+              </Link>
             </SignedOut>
           </>
         )}
