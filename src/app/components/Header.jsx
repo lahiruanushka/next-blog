@@ -27,13 +27,6 @@ const Header = () => {
     }
   }, [searchParams]);
 
-  const handleSignout = async () => {
-    try {
-      router.push("/sign-in");
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -118,7 +111,7 @@ const Header = () => {
                 <Dropdown.Divider />
               </>
             )}
-            <Dropdown.Item onClick={handleSignout}>Sign out</Dropdown.Item>
+
           </Dropdown>
         ) : (
           <>

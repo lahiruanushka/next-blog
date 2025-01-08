@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
+import FooterComponent from "./components/Footer";
 import { ThemeProvider } from "next-themes";
 import ThemeComponent from "./components/ThemeComponent";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -40,6 +41,7 @@ export default function RootLayout({ children }) {
           <ThemeComponent>
             <Header />
             {children}
+            <FooterComponent />
           </ThemeComponent>
         </ThemeProvider>
       </body>
